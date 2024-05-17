@@ -1,17 +1,11 @@
 import time
 import subprocess
-#from winreg import DeleteValue
-from PIL.Image import MODES
 from loguru import logger
 
 from Tools.tool_can import NewPCANBasic
-from Tools.monopack_v2 import MonoPack
+from monopack_v2 import MonoPack
 from Tools.abstract_classes.stagesAbstract import StagesAbstract
 from constants import MIN_X, MAX_X, MIN_Y, MAX_Y, IDX, NAME_X, IDY, NAME_Y, PREDIVIDER, STEP
-
-# Time constants in seconds.
-TIME_CONST1 = 0.02
-TIME_CONST2 = 0.03
 
 class StagesPI(StagesAbstract):
     """

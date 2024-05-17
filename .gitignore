@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+## My own additions
+# Python virtual enviroment
+.venv
+venv/
+
 # User-specific files
 *.rsuser
 *.suo
