@@ -1,0 +1,6 @@
+[submodule "Peak-PCAN"]
+	path = Peak-PCAN
+	url = https://github.com/Nanoptiqs/Peak-PCAN.git
+[submodule "abstract_classes"]
+	path = abstract_classes
+	url = https://github.com/Nanoptiqs/abstract_classes.git

@@ -1,34 +1,66 @@
-import time
-import subprocess
-from loguru import logger
+#!/usr/bin/python3
 
-from Tools.tool_can import NewPCANBasic
+# stages_monopack.py
+#
+# ~~~~~~~~~~~~
+#
+# Module with StagePI class for controlling X, Y stages with two Monopack drivers.
+#
+# ~~~~~~~~~~~~
+#
+# ------------------------------------------------------------------
+# Author : Josef Stepanik
+# Language: Python 3
+# ------------------------------------------------------------------
+#
+# Copyright (C) 2022-2024 IQS Group  
+# Info at http://www.iqsgroup.cz
+# 
+
+# Import built-in modules.
+import os
+import sys
+import time
+
+# find paths to the modules
+file_path   = os.path.dirname(__file__)
+depend_path = os.path.join('..', 'abstract_classes')
+
+# add path to the modules
+abspath = os.path.abspath(os.path.join(file_path, depend_path))
+sys.path.append(abspath)
+
+# import own modules
+from loguru import logger
 from monopack_v2 import MonoPack
-from Tools.abstract_classes.stagesAbstract import StagesAbstract
-from constants import MIN_X, MAX_X, MIN_Y, MAX_Y, IDX, NAME_X, IDY, NAME_Y, PREDIVIDER, STEP
+from stagesAbstract import StagesAbstract
 
 class StagesPI(StagesAbstract):
     """
     Class for managing XY stage from PI based on model 410.2S linear stages.
     """
 
-    x_min = MIN_X
-    x_max = MAX_X  # 350
-    y_min = MIN_Y
-    y_max = MAX_Y  # 350
+    x_min = 0
+    x_max = 400  # 350
+    y_min = 0
+    y_max = 400  # 350
 
     x_min_limit = x_min
     x_max_limit = x_max
     y_min_limit = y_min
     y_max_limit = y_max
+    
 
-    def __init__(self, master, can, verbose: bool = True):
+
+    def __init__(self, master, can, verbose: bool = True, idx = 7, idy = 1):
         """
         Initialize parameters necessary for functions inside class. Nicknames for stages,
         switches, directions, regimes, etc. are defined. Runs initializing procedures for
         serial connection and stages.
         """
         self.m_can = can  # instance of can object
+        self.IDX = idx
+        self.IDY = idy
         self.master = master
         self.stages = {'X': '1', 'Y': '2'}  # nicknames for stages
         self.pause = 0.02  # communication pause in s, used for waiting during serial communication
@@ -61,8 +93,8 @@ class StagesPI(StagesAbstract):
         """
         # Initializing of two axis.
         try:
-            self.axis_x = MonoPack(can_object=self.m_can, address=IDX, name=NAME_X)
-            self.axis_y = MonoPack(can_object=self.m_can, address=IDY, name=NAME_Y)
+            self.axis_x = MonoPack(can_object=self.m_can, address=self.IDX)
+            self.axis_y = MonoPack(can_object=self.m_can, address=self.IDY)
             x = self.axis_x.get_version_number()
             y = self.axis_y.get_version_number()
             self.master.textbox1.insert('0.0','Axis X controller: FW version = {} and temperature {} \u00B0C\n'.format(x[0], x[2]))
@@ -106,7 +138,7 @@ class StagesPI(StagesAbstract):
         self.axis_x.set_current_control(P1=0, P2=0x80, P3=0xC8)
         self.axis_x.set_deviation_alarm(P1=0, P2=0, correction_start_after=1)
         self.axis_x.conf_auto_position_correction(P1=5, tolerance=10)
-        self.axis_x.set_frequency_range(P1=5)
+        self.axis_x.set_frequency_range(P1=self.axis_x.PREDIVIDER)
         self.axis_x.set_microstep_resolution(P1=50, P2=0, P5=1)
         self.axis_x.encoder_configuration(P1=64, P2=3, P5=2, deviation=16)
         self.axis_x.set_switch_mode(P2=1, P3=0, P4=1, P5=0, P6=0)
@@ -126,7 +158,7 @@ class StagesPI(StagesAbstract):
         self.axis_y.set_current_control(P1=0, P2=0x80, P3=0xC8)
         self.axis_y.set_deviation_alarm(P1=0, P2=0, correction_start_after=1)
         self.axis_y.conf_auto_position_correction(P1=5, tolerance=10)
-        self.axis_y.set_frequency_range(P1=PREDIVIDER)
+        self.axis_y.set_frequency_range(P1=self.axis_y.PREDIVIDER)
         self.axis_y.set_microstep_resolution(P1=50, P2=0, P5=1)
         self.axis_y.encoder_configuration(P1=64, P2=3, P5=2, deviation=16)
         self.axis_y.set_switch_mode(P2=1, P3=0, P4=1, P5=0, P6=0)
@@ -191,7 +223,7 @@ class StagesPI(StagesAbstract):
                     logger.info(f'Recursive call {recursion} started: __get_real_position')
 
                 answer = lambda stage: self.axis_x.get_encoder_counter() if stage == 'X' else self.axis_y.get_encoder_counter()
-                answer = answer(stage) * STEP # encoder counter to mm
+                answer = answer(stage) * self.axis_x.STEP # encoder counter to mm
                 # if recursion and verbose:
                 #     logger.info(f'Recursive call ({recursion}) of __get_real_position, answer : "{answer}"')
 
@@ -365,7 +397,7 @@ class StagesPI(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             x_new = self.limit_positions(x=position)
-            self.axis_x.drive_a_ramp(position=round(x_new/STEP))
+            self.axis_x.drive_a_ramp(position=round(x_new/self.axis_x.STEP))
             self.set_new_pos(x=x_new)
 
     def move_to_y(self, position: float):
@@ -374,7 +406,7 @@ class StagesPI(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             y_new = self.limit_positions(y=position)
-            self.axis_y.drive_a_ramp(position=round(y_new/STEP))
+            self.axis_y.drive_a_ramp(position=round(y_new/self.axis_y.STEP))
             self.set_new_pos(y=y_new)
 
     def move_to_xy(self,
@@ -562,4 +594,4 @@ def run_test_of_stages(master, can):
 
 
 if __name__ == '__main__':
-    run_test_of_stages()
+    run_test_of_stages(master=None, can=None)

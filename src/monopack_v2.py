@@ -10,12 +10,10 @@
 #
 # ------------------------------------------------------------------
 # Author : Josef Stepanik
-# Last change: 2023-09-23
-#
 # Language: Python 3
 # ------------------------------------------------------------------
 #
-# Copyright (C) 2022-2023 IQS Group  
+# Copyright (C) 2022-2024 IQS Group  
 # Info at http://www.iqsgroup.cz
 # 
 '''
@@ -38,15 +36,23 @@ Some commands are followed with their answer ($43, $74, $21... etc)
 
 '''
 
-# Module imports.
-from ctypes.wintypes import BYTE
-from sys import byteorder
-import time
+# Import built-in modules.
 import struct
+import os
+import sys
 
+# find paths to the modules
+file_path   = os.path.dirname(__file__)
+depend_path = os.path.join('..', 'Peak-PCAN', 'src')
+
+# add path to the modules
+abspath = os.path.abspath(os.path.join(file_path, depend_path))
+sys.path.append(abspath)
+
+# import own modules
 from loguru import logger
-from Tools.tool_can import *
-from constants import STEP, FCLK, PREDIVIDER
+from tool_can import *
+
 
 # Exception class.
 class InvalidValue(ValueError): pass
@@ -56,28 +62,30 @@ class MonoPack():
     '''
     Class defines the driver with ID, list of instructions(commands) and operations.
     '''
-    def __init__(self, can_object= NewPCANBasic(), address=None, name=""):
+    def __init__(self, can_object= NewPCANBasic(), address=None, step = 0.0002, fclk = 16000000, predivider = 5):
         '''
         >>> driver_x = MonoPack(address = 0x07)
-        >>> driver_x.self.id
+        >>> driver_x.id
         7
         '''
         self.can_object             = can_object
         self.id                     = address
-        self.name                   = name
+        self.STEP                   = step
+        self.FCLK                   = fclk
+        self.PREDIVIDER             = predivider
         
 
     def speed_mms1_to_steps(self, speed):
         '''
         Convert speed from mm/s to velocity value.
         '''
-        return round((speed/(FCLK * STEP)) * 2**(15 + PREDIVIDER))
+        return round((speed/(self.FCLK * self.STEP)) * 2**(15 + self.PREDIVIDER))
     
     def acceleration_mms2_to_steps(self, acceleration):
         '''
         Convert acceleration from mm/s**2 to steps.
         '''
-        return round((acceleration/(FCLK * STEP)) * 2**(15 + PREDIVIDER))
+        return round((acceleration/(self.FCLK * self.STEP)) * 2**(15 + self.PREDIVIDER))
         
         
     #***********************************************************************************#
@@ -305,7 +313,7 @@ class MonoPack():
         '''
         if position not in range(-8388608, 16777216):
             raise InvalidValue("Position value must be in range -8388608..16777215.")
-        logger.debug("Count for position {0} is: {1}\n".format(position*STEP, position))
+        logger.debug("Count for position {0} is: {1}\n".format(position*self.STEP, position))
         b_position = struct.pack('<l', position)
         logger.debug('Send position {} to Monopack.'.format(b_position))
         P1, P2, P3, P4 = b_position
@@ -535,7 +543,7 @@ class MonoPack():
         try:
             response_data = bytearray(self.can_object.write_read(self.id, command)[1].DATA)
             encoder_counter = struct.unpack('<L', response_data[2:6])[0]
-            actual_position = encoder_counter * STEP
+            actual_position = encoder_counter * self.STEP
             logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
         except Exception as err:
             logger.debug("Get the encoder counter value function was done with error: {}!".format(err))
