@@ -42,26 +42,24 @@ class TestApp(QWidget):
         for item in self.m_BAUDRATES:
             self.hw_rate.addItem(item)
             
-        self.line_edits = []
-        for _ in range(9):
-            line_edit = QLineEdit()
-            self.line_edits.append(line_edit)
-            container.addWidget(line_edit)
-        self.line_edits[0].setPlaceholderText('Address')
-        self.line_edits[1].setPlaceholderText('Data 1')
-        self.line_edits[2].setPlaceholderText('Data 2')
-        self.line_edits[3].setPlaceholderText('Data 3')
-        self.line_edits[4].setPlaceholderText('Data 4')
-        self.line_edits[5].setPlaceholderText('Data 5')
-        self.line_edits[6].setPlaceholderText('Data 6')
-        self.line_edits[7].setPlaceholderText('Data 7')
-        self.line_edits[8].setPlaceholderText('Data 8')
+        self.buttons = []
+        for i in range(6):
+            btn = QPushButton()
+            btn.setEnabled(False)
+            self.buttons.append(btn)
+            container.addWidget(btn)
+        self.buttons[0].setText('Center')
+        self.buttons[1].setText('Service')
+        self.buttons[2].setText('Another')
+        self.buttons[3].setText('Data 3')
+        self.buttons[4].setText('Data 4')
+        self.buttons[5].setText('Data 5')
 
         self.init_btn = QPushButton('Initialize')
         self.init_btn.clicked.connect(self.init_can)
         
         self.send_btn = QPushButton('Test Stage')
-        #self.send_btn.setEnabled(False)
+        self.send_btn.setEnabled(False)
         self.send_btn.clicked.connect(self.test_stage)
         
         self.textbox = QTextEdit()
@@ -86,12 +84,12 @@ class TestApp(QWidget):
             self.can = NewPCANBasic(PcanHandle=self.m_NonPnPHandles[self.hw_combo.currentText()])
             status = self.can.Initialize(self.can.PcanHandle, self.m_BAUDRATES[self.hw_rate.currentText()])
             if PCAN_ERROR_OK != status:
-                
                 raise
             self.textbox.setText('Initialized.\n')
             self.send_btn.setEnabled(True)
         except Exception as err:
             error_message = self.can.get_formatted_error(status)
+            del self.can
             self.textbox.setText('Error in initializing CAN device: {}.\n'.format(error_message))
             
     def test_stage(self):
@@ -132,12 +130,12 @@ class TestApp(QWidget):
             stage.is_ready('X')
             stage.is_ready('Y')
             stage.print_current_positions()
-            logger.info('Stages at 0, 0. Test exposure finished')
+            logger.info('Stages at 0, 0. Test procedure finished')
             
-            self.textbox.append('Stages at 0, 0. Test exposure finished\n')
+            self.textbox.append('Stages at 0, 0. Test procedure finished\n')
            
         except Exception as err:
-            self.textbox.append('Error in sending the CAN message: {}.\n'.format(err))
+            self.textbox.append('Error during making test of stage: {}.\n'.format(err))
             
         
 

@@ -10,7 +10,7 @@
 #
 # ------------------------------------------------------------------
 # Author : Josef Stepanik
-# Language: Python 3
+# Language: Python3
 # ------------------------------------------------------------------
 #
 # Copyright (C) 2022-2024 IQS Group  
@@ -41,9 +41,9 @@ class StagesPI(StagesAbstract):
     """
 
     x_min = 0
-    x_max = 400  # 350
+    x_max = 400
     y_min = 0
-    y_max = 400  # 350
+    y_max = 400
 
     x_min_limit = x_min
     x_max_limit = x_max
@@ -63,7 +63,6 @@ class StagesPI(StagesAbstract):
         self.IDY = idy
         self.master = master
         self.stages = {'X': '1', 'Y': '2'}  # nicknames for stages
-        self.pause = 0.02  # communication pause in s, used for waiting during serial communication
 
         self.x_center = 200
         self.y_center = 200
@@ -97,8 +96,8 @@ class StagesPI(StagesAbstract):
             self.axis_y = MonoPack(can_object=self.m_can, address=self.IDY)
             x = self.axis_x.get_version_number()
             y = self.axis_y.get_version_number()
-            self.master.textbox1.insert('0.0','Axis X controller: FW version = {} and temperature {} \u00B0C\n'.format(x[0], x[2]))
-            self.master.textbox1.insert('0.0','Axis Y controller: FW version = {} and temperature {} \u00B0C\n'.format(y[0], y[2]))
+            logger.info('Axis X controller: FW version = {} and temperature {} \u00B0C\n'.format(x[0], x[2]))
+            logger.info('0.0','Axis Y controller: FW version = {} and temperature {} \u00B0C\n'.format(y[0], y[2]))
             self.is_connected = True
         except:
             self.is_connected = False
@@ -122,7 +121,6 @@ class StagesPI(StagesAbstract):
             else:
                 logger.debug('Now we can send command to reference stages')
                 self.reference_stages()
-               # self.set_new_pos(x=999.99, y=999.99)
 
     def set_default_parameters(self):
         '''
@@ -187,6 +185,7 @@ class StagesPI(StagesAbstract):
 
     # Motor status functions ----------------------------------------------------------------
 
+    # UNDONE: Unimplemented get_error function
     def get_error(self, stage: str):
         """
         Get error number for specified stage and reset error status.
@@ -349,6 +348,7 @@ class StagesPI(StagesAbstract):
         self.axis_y.soft_stop()
         self.update_current_pos()
 
+    # UNDONE: Unimplemented move_x_relative function
     def move_x_relative(self, shift: float):
         """
         Move stage X about the distance specified in shift in millimeters. Positive shift
@@ -361,6 +361,7 @@ class StagesPI(StagesAbstract):
             # answer = self.write_serial('1 MVR 1 ' + str(shift))
             self.set_new_pos(x=x_new)
 
+    # UNDONE: Unimplemented move_y_relative function
     def move_y_relative(self, shift: float):
         """
         Move stage Y about the distance specified in shift in millimeters. Positive shift
@@ -408,10 +409,10 @@ class StagesPI(StagesAbstract):
             self.axis_y.drive_a_ramp(position=round(y_new/self.axis_y.STEP))
             self.set_new_pos(y=y_new)
 
-    def move_to_xy(self,
-                   position_x: float,
-                   position_y: float):
-
+    def move_to_xy(self, position_x: float, position_y: float):
+        '''
+        Move the stages to the specified position.
+        '''
         self.move_to_x(position_x)
         self.move_to_y(position_y)
 
@@ -427,7 +428,9 @@ class StagesPI(StagesAbstract):
         return
 
     def update_current_pos(self):
-
+        '''
+        Update the current position of the stages.
+        '''
         self.set_new_pos(x=self.get_x(),
                          y=self.get_y())
         return
@@ -473,7 +476,6 @@ class StagesPI(StagesAbstract):
         logger.info('Stages are referenced')
         self.is_referenced = True
         self.print_current_positions()
-        self.master.textbox1.insert('0.0','Stages are referenced\n')
         self.master.runx_button.configure(state='normal')
         self.master.runy_button.configure(state='normal')
         # x_status = self.get_reference_status('X')
@@ -500,6 +502,9 @@ class StagesPI(StagesAbstract):
         raise Exception('Unable to reference motors')
 
     def is_ready(self, stage):
+        '''
+        
+        '''
         check = lambda stage: (self.axis_y.get_actual_acceleration_velocity() if stage == 'Y' else self.axis_x.get_actual_acceleration_velocity())
         is_finished = None  # self.get_on_target_state(stage)
         
