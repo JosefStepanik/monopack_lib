@@ -43,7 +43,7 @@ import sys
 
 # find paths to the modules
 file_path   = os.path.dirname(__file__)
-depend_path = os.path.join('..', 'Peak-PCAN', 'src')
+depend_path = os.path.join('..', 'Peak_PCAN', 'src')
 
 # add path to the modules
 abspath = os.path.abspath(os.path.join(file_path, depend_path))

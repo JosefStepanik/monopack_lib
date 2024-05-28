@@ -103,7 +103,6 @@ class StagesPI(StagesAbstract):
         except:
             self.is_connected = False
             logger.error(self.error_prefix + 'Stage can\'t be connected.')
-            self.master.textbox1.insert('0.0','Stage can\'t be connected.\n')
 
     def disconnect(self):
 
@@ -549,49 +548,3 @@ class StagesPI(StagesAbstract):
 
     def print_current_positions(self):
         logger.info(f"Current position: X {self.__get_real_position('X')}, Y: {self.__get_real_position('Y')}")
-
-
-def run_test_of_stages(master, can):
-    """
-    Run basic stages tests
-    """
-    master.textbox1.insert('0.0','Running test of stages\n')
-
-    stage = StagesPI(master, can, verbose=False)
-
-    stage.reference_stage(force_reference=False)
-    logger.info('REFERENCED')
-    time.sleep(2)
-
-    logger.info('Going to 20, 10')
-    stage.move_to_x(20)
-    stage.move_to_y(10)
-
-    stage.is_ready('X')
-    stage.is_ready('Y')
-    stage.print_current_positions()
-
-    logger.info('Going to 50, 50')
-    stage.move_to_x(50)
-    stage.move_to_y(50)
-
-    stage.is_ready('X')
-    stage.is_ready('Y')
-    stage.print_current_positions()
-
-    logger.info('Going home')
-    stage.go_home('X')
-    stage.go_home('Y')
-
-    time.sleep(1)
-   
-    stage.is_ready('X')
-    stage.is_ready('Y')
-    stage.print_current_positions()
-    logger.info('Stages at 0, 0. Test exposure finished')
-    
-    master.textbox1.insert('0.0','Stages at 0, 0. Test exposure finished\n')
-
-
-if __name__ == '__main__':
-    run_test_of_stages(master=None, can=None)
