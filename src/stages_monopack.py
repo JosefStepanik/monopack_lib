@@ -70,6 +70,8 @@ class StagesPI(StagesAbstract):
         self.is_connected = False
         self.is_enabled = True
         self.is_referenced = False
+        
+        self.init_msg = None
 
         # # positions of stages for resist alignment - position is tuned by hex tools
         # self.resist_alignment_positions = {'F1': [8.0, 52.0],
@@ -83,7 +85,7 @@ class StagesPI(StagesAbstract):
         self.is_referenced = None
         self.error_prefix = 'STAGES_________DUMMY: '
 
-        self.connect()  # try to establish connection to the controller
+        self.init_msg = self.connect()  # try to establish connection to the controller
         #self.init_stages()  # initialize stages
 
     def connect(self):
@@ -96,11 +98,15 @@ class StagesPI(StagesAbstract):
             self.axis_y = MonoPack(can_object=self.m_can, address=self.IDY)
             x = self.axis_x.get_version_number()
             y = self.axis_y.get_version_number()
-            logger.info('Axis X controller: FW version = {} and temperature {} \u00B0C\n'.format(x[0], x[2]))
-            logger.info('0.0','Axis Y controller: FW version = {} and temperature {} \u00B0C\n'.format(y[0], y[2]))
+            msg_x = 'Axis X controller: FW version = {} and temperature {} \u00B0C\n'.format(x[0], x[2])
+            msg_y = 'Axis Y controller: FW version = {} and temperature {} \u00B0C\n'.format(y[0], y[2])
+            logger.info(msg_x)
+            logger.info(msg_y)
             self.is_connected = True
+            return msg_x, msg_y
         except:
             self.is_connected = False
+            return None
             logger.error(self.error_prefix + 'Stage can\'t be connected.')
 
     def disconnect(self):

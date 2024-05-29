@@ -105,6 +105,8 @@ class TestApp(QWidget):
             self.stage = StagesPI(self, self.can, verbose=False)
             self.stage.init_stages()
             self.textbox.append('Initialization of stage.\n')
+            self.textbox.append(self.stage.init_msg[0])
+            self.textbox.append(self.stage.init_msg[1])
             self.buttons[1].setEnabled(True)
             self.buttons[2].setEnabled(True)
             self.buttons[3].setEnabled(True)
