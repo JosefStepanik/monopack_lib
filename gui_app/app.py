@@ -48,19 +48,24 @@ class TestApp(QWidget):
             btn.setEnabled(False)
             self.buttons.append(btn)
             container.addWidget(btn)
-        self.buttons[0].setText('Center')
-        self.buttons[1].setText('Service')
-        self.buttons[2].setText('Another')
-        self.buttons[3].setText('Data 3')
-        self.buttons[4].setText('Data 4')
-        self.buttons[5].setText('Data 5')
+            
+        self.buttons[0].setText('Init Stage')
+        self.buttons[0].clicked.connect(self.init_stage)
+        self.buttons[1].setText('Center')
+        self.buttons[1].clicked.connect(self.center_stage)
+        self.buttons[2].setText('Service pos')
+        self.buttons[2].clicked.connect(self.service_pos)
+        self.buttons[3].setText('Home')
+        self.buttons[3].clicked.connect(self.home_stage)
+        self.buttons[4].setText('Data 3')
+        self.buttons[5].setText('Data 4')
 
         self.init_btn = QPushButton('Initialize')
         self.init_btn.clicked.connect(self.init_can)
         
-        self.send_btn = QPushButton('Test Stage')
-        self.send_btn.setEnabled(False)
-        self.send_btn.clicked.connect(self.test_stage)
+        self.test_btn = QPushButton('Test Stage')
+        self.test_btn.setEnabled(False)
+        self.test_btn.clicked.connect(self.test_stage)
         
         self.textbox = QTextEdit()
         
@@ -69,7 +74,7 @@ class TestApp(QWidget):
         self.layout.addWidget(self.hw_rate)
         self.layout.addWidget(self.init_btn)
         self.layout.addLayout(container)
-        self.layout.addWidget(self.send_btn)
+        self.layout.addWidget(self.test_btn)
         self.layout.addWidget(self.textbox)
         
         # Set layout.
@@ -86,11 +91,55 @@ class TestApp(QWidget):
             if PCAN_ERROR_OK != status:
                 raise
             self.textbox.setText('Initialized.\n')
-            self.send_btn.setEnabled(True)
+            self.test_btn.setEnabled(True)
         except Exception as err:
             error_message = self.can.get_formatted_error(status)
             del self.can
             self.textbox.setText('Error in initializing CAN device: {}.\n'.format(error_message))
+            
+    def init_stage(self):
+        '''
+        This function is used to initialize the stage.
+        '''
+        try:
+            self.stage = StagesPI(self, self.can, verbose=False)
+            self.stage.init_stages()
+            self.textbox.append('Initialization of stage.\n')
+            self.buttons[1].setEnabled(True)
+            self.buttons[2].setEnabled(True)
+            self.buttons[3].setEnabled(True)
+        except Exception as err:
+            self.textbox.append('Error in initializing stage: {}.\n'.format(err))
+            
+    def center_stage(self):
+        '''
+        This function is used to center the stage.
+        '''
+        try:
+            self.stage.move_to_center()
+            self.textbox.append('Stage go to the centre.\n')
+        except Exception as err:
+            self.textbox.append('Error in centering stage: {}.\n'.format(err))
+            
+    def home_stage(self):
+        '''
+        This function is used to go to the home position.
+        '''
+        try:
+            self.stage.go_home()
+            self.textbox.append('Stage go to the home position.\n')
+        except Exception as err:
+            self.textbox.append('Error in going to home position: {}.\n'.format(err))
+            
+    def service_pos(self):
+        '''
+        This function is used to go to the service position.
+        '''
+        try:
+            self.stage.move_to_xy(200, 5)
+            self.textbox.append('Stage go to the service position.\n')
+        except Exception as err:
+            self.textbox.append('Error in going to service position: {}.\n'.format(err))
             
     def test_stage(self):
         """

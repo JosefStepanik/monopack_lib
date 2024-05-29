@@ -438,11 +438,14 @@ class StagesPI(StagesAbstract):
     def reference_stages(self,
                          stage: str = 'XY',
                          force_reference: bool = False):
+        '''
+        Reference the stages. If force_reference is True, the stages will be referenced even if they are already referenced.
+        '''
 
         if self.verbose:
             logger.info('Referencing stages')
-        if force_reference:
-            self.set_new_pos(x=0.0, y=0.0)
+        # if force_reference:
+        #     self.set_new_pos(x=0.0, y=0.0)
 
         # try:
         if 'X' in stage:
@@ -478,16 +481,13 @@ class StagesPI(StagesAbstract):
         self.print_current_positions()
         self.master.runx_button.configure(state='normal')
         self.master.runy_button.configure(state='normal')
-        # x_status = self.get_reference_status('X')
-        # y_status = self.get_reference_status('Y')
 
-        # if x_status == '1' and y_status == '1':
-        #     self.is_referenced = True
-        # else:
-        #     self.is_referenced = False
 
     def is_referenced(self,
                       run_reference_procedure: bool = True) -> bool:
+        '''
+        Check if the motors are referenced. If not, run the reference procedure.
+        '''
 
         if self.is_referenced:
             return True
@@ -503,7 +503,7 @@ class StagesPI(StagesAbstract):
 
     def is_ready(self, stage):
         '''
-        
+        Check if the stage is ready after move by checking the actual velocity.
         '''
         check = lambda stage: (self.axis_y.get_actual_acceleration_velocity() if stage == 'Y' else self.axis_x.get_actual_acceleration_velocity())
         is_finished = None  # self.get_on_target_state(stage)
