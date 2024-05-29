@@ -90,8 +90,9 @@ class TestApp(QWidget):
             status = self.can.Initialize(self.can.PcanHandle, self.m_BAUDRATES[self.hw_rate.currentText()])
             if PCAN_ERROR_OK != status:
                 raise
-            self.textbox.setText('Initialized.\n')
+            self.textbox.setText('CAN initialized.\n')
             self.test_btn.setEnabled(True)
+            self.buttons[0].setEnabled(True)
         except Exception as err:
             error_message = self.can.get_formatted_error(status)
             del self.can

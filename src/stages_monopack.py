@@ -485,9 +485,7 @@ class StagesPI(StagesAbstract):
         logger.info('Stages are referenced')
         self.is_referenced = True
         self.print_current_positions()
-        self.master.runx_button.configure(state='normal')
-        self.master.runy_button.configure(state='normal')
-
+        
 
     def is_referenced(self,
                       run_reference_procedure: bool = True) -> bool:
