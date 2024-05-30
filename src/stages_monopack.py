@@ -52,16 +52,14 @@ class StagesPI(StagesAbstract):
     
 
 
-    def __init__(self, master, can, verbose: bool = True, idx = 7, idy = 1):
+    def __init__(self, communication, verbose: bool = True, idx = 7, idy = 1):
         """
         Initialize parameters necessary for functions inside class. Nicknames for stages,
         switches, directions, regimes, etc. are defined. Runs initializing procedures for
         serial connection and stages.
         """
-        self.m_can = can  # instance of can object
+        self.m_can = communication # instance of can object
         self.IDX = idx
-        self.IDY = idy
-        self.master = master
         self.stages = {'X': '1', 'Y': '2'}  # nicknames for stages
 
         self.x_center = 200
