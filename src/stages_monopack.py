@@ -32,12 +32,12 @@ sys.path.append(abspath)
 
 # import own modules
 from loguru import logger
-from monopack_v2 import MonoPack
+from external.Trinamic_Monopack_V2.src.monopack_v2 import MonoPack
 from stagesAbstract import StagesAbstract
 
-class StagesPI(StagesAbstract):
+class StagesMonopack(StagesAbstract):
     """
-    Class for managing XY stage from PI based on model 410.2S linear stages.
+    Class for managing XY stage based on model Trinamic Monopack stages.
     """
 
     x_min = 0
@@ -60,6 +60,7 @@ class StagesPI(StagesAbstract):
         """
         self.m_can = communication # instance of can object
         self.IDX = idx
+        self.IDY = idy
         self.stages = {'X': '1', 'Y': '2'}  # nicknames for stages
 
         self.x_center = 200
@@ -84,7 +85,7 @@ class StagesPI(StagesAbstract):
         self.error_prefix = 'STAGES_________DUMMY: '
 
         self.init_msg = self.connect()  # try to establish connection to the controller
-        #self.init_stages()  # initialize stages
+        self.init_stages()              # initialize stages
 
     def connect(self):
         """

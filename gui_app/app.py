@@ -103,7 +103,7 @@ class TestApp(QWidget):
         This function is used to initialize the stage.
         '''
         try:
-            self.stage = StagesPI( self.can, verbose=False)
+            self.stage = StagesMonopack( self.can, verbose=False)
             self.stage.init_stages()
             self.textbox.append('Initialization of stage.\n')
             self.textbox.append(self.stage.init_msg[0])
