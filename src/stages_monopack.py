@@ -33,7 +33,7 @@ sys.path.append(abspath)
 # import own modules
 from loguru import logger
 from external.Trinamic_Monopack_V2.src.monopack_v2 import MonoPack
-from stagesAbstract import StagesAbstract
+from external.abstract_classes.stagesAbstract import StagesAbstract
 
 class StagesMonopack(StagesAbstract):
     """
