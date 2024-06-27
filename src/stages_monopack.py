@@ -310,11 +310,10 @@ class StagesMonopack(StagesAbstract):
     def limit_positions_static(x: float = None,
                                y: float = None):
 
-        x_min = StagesPI.x_min
-        x_max = StagesPI.x_max
-
-        y_min = StagesPI.y_min
-        y_max = StagesPI.y_max
+        x_min = StagesMonopack.x_min
+        x_max = StagesMonopack.x_max
+        y_min = StagesMonopack.y_min
+        y_max = StagesMonopack.y_max
 
         if x is not None:
             # if x <= x_min:
@@ -361,9 +360,7 @@ class StagesMonopack(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             x_new = self.limit_positions(x=(self.x_mm + shift))
-            command = '1 MOV 1 ' + str(x_new)
-            answer = self.write_serial(command)
-            # answer = self.write_serial('1 MVR 1 ' + str(shift))
+            response = self.axis_x.drive_a_ramp(position=round(x_new/self.axis_x.STEP))
             self.set_new_pos(x=x_new)
 
     # UNDONE: Unimplemented move_y_relative function
@@ -374,8 +371,7 @@ class StagesMonopack(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             y_new = self.limit_positions(y=self.y_mm + shift)
-            # answer = self.write_serial('2 MVR 1 ' + str(shift))
-            answer = self.write_serial('2 MOV 1 ' + str(y_new))
+            response = self.axis_x.drive_a_ramp(position=round(y_new/self.axis_y.STEP))
             self.set_new_pos(y=y_new)
 
     def go_home(self, stage: str = 'XY'):
