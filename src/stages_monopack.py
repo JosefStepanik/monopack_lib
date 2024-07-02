@@ -227,17 +227,6 @@ class StagesMonopack(StagesAbstract):
 
                 answer = lambda stage: self.axis_x.get_encoder_counter() if stage == 'X' else self.axis_y.get_encoder_counter()
                 answer = answer(stage) * self.axis_x.STEP # encoder counter to mm
-                # if recursion and verbose:
-                #     logger.info(f'Recursive call ({recursion}) of __get_real_position, answer : "{answer}"')
-
-                # if not MIN_X < answer < MAX_X :
-                #     if verbose:
-                #         logger.info('__get_real_position ERROR! Got answer: "{}"'.format(answer))
-                #         logger.info('Answer value', len(answer))
-                #         logger.info('Will start recursive call of "__get_real_position"')
-                #     return self.__get_real_position(stage, recursion=recursion + 1)
-                # else:
-                #     return answer 
                 return answer
             except Exception as err:
                 logger.warning('Something went wrong: {}'.format(err))
@@ -245,6 +234,7 @@ class StagesMonopack(StagesAbstract):
         else:
             return 0
 
+    # TODO: Not implemented get_on_target_state function
     def get_on_target_state(self,
                             stage: str,
                             recursive: bool = False):
