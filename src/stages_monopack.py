@@ -407,6 +407,17 @@ class StagesMonopack(StagesAbstract):
         self.move_to_x(position_x)
         self.move_to_y(position_y)
 
+    def get_x_error(self):
+        '''
+        Get the error of the stage X.
+        '''
+        return self.axis_x.desired_step_position - self.axis_x.get_encoder_counter()
+    def get_y_error(self):
+        '''
+        Get the error of the stage Y.
+        '''
+        return self.axis_y.desired_step_position - self.axis_y.get_encoder_counter()
+
     def set_new_pos(self, x: float = None,
                     y: float = None):
 

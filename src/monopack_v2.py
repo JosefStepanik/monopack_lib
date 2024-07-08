@@ -62,7 +62,7 @@ class MonoPack():
     '''
     Class defines the driver with ID, list of instructions(commands) and operations.
     '''
-    def __init__(self, can_object= NewPCANBasic(), address=None, step = 0.0002, fclk = 16000000, predivider = 5):
+    def __init__(self, can_object= can, address=None, step = 0.0002, fclk = 16000000, predivider = 5):
         '''
         >>> driver_x = MonoPack(address = 0x07)
         >>> driver_x.id
@@ -73,6 +73,7 @@ class MonoPack():
         self.STEP                   = step
         self.FCLK                   = fclk
         self.PREDIVIDER             = predivider
+        self.desired_step_position  = 0
         
 
     def speed_mms1_to_steps(self, speed):
@@ -313,6 +314,7 @@ class MonoPack():
         '''
         if position not in range(-8388608, 16777216):
             raise InvalidValue("Position value must be in range -8388608..16777215.")
+        self.desired_step_position = position
         logger.debug("Count for position {0} is: {1}\n".format(position*self.STEP, position))
         b_position = struct.pack('<l', position)
         logger.debug('Send position {} to Monopack.'.format(b_position))
