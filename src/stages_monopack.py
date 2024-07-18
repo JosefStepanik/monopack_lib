@@ -371,9 +371,9 @@ class StagesMonopack(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             if 'X' in stage:
-                self.axis_x.drive_a_ramp(position=0)
+                self.axis_x.drive_a_ramp(position=2500)
             if 'Y' in stage:
-                self.axis_y.drive_a_ramp(position=0)
+                self.axis_y.drive_a_ramp(position=2500)
     
     def move_to_center(self):
         '''

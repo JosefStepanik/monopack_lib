@@ -62,7 +62,7 @@ class MonoPack():
     '''
     Class defines the driver with ID, list of instructions(commands) and operations.
     '''
-    def __init__(self, can_object= can, address=None, step = 0.0002, fclk = 16000000, predivider = 5):
+    def __init__(self, can_object=None, address=None, step = 0.0002, fclk = 16000000, predivider = 5):
         '''
         >>> driver_x = MonoPack(address = 0x07)
         >>> driver_x.id
