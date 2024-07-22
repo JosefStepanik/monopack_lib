@@ -49,6 +49,9 @@ class StagesMonopack(StagesAbstract):
     x_max_limit = x_max
     y_min_limit = y_min
     y_max_limit = y_max
+
+    time_for_ready_loop = 0.1 # time for waiting loop between two asking attempts in seconds
+    attempts_for_ready = 2    # number of attempts for checking if the stage is ready
     
 
 
@@ -71,13 +74,6 @@ class StagesMonopack(StagesAbstract):
         self.is_referenced = False
         
         self.init_msg = None
-
-        # # positions of stages for resist alignment - position is tuned by hex tools
-        # self.resist_alignment_positions = {'F1': [8.0, 52.0],
-        #                                    'F2': [73.0, 16.0],
-        #                                    'F3': [73.0, 86.0],
-        #                                    'CENTER': [40.5, 52.0],
-        #                                    'HOME': [0, 0]}
 
         self.verbose = verbose  # if detailed information should be printed
 
@@ -120,6 +116,7 @@ class StagesMonopack(StagesAbstract):
 
         if self.is_connected:
             self.set_default_parameters()
+            time.sleep(0.5)
 
             if self.is_referenced:
                 self.update_current_pos()
@@ -234,7 +231,7 @@ class StagesMonopack(StagesAbstract):
         else:
             return 0
 
-    # TODO: Not implemented get_on_target_state function
+    # TODO Not implemented get_on_target_state function
     def get_on_target_state(self,
                             stage: str,
                             recursive: bool = False):
@@ -342,7 +339,6 @@ class StagesMonopack(StagesAbstract):
         self.axis_y.soft_stop()
         self.update_current_pos()
 
-    # UNDONE: Unimplemented move_x_relative function
     def move_x_relative(self, shift: float):
         """
         Move stage X about the distance specified in shift in millimeters. Positive shift
@@ -353,7 +349,6 @@ class StagesMonopack(StagesAbstract):
             response = self.axis_x.drive_a_ramp(position=round(x_new/self.axis_x.STEP))
             self.set_new_pos(x=x_new)
 
-    # UNDONE: Unimplemented move_y_relative function
     def move_y_relative(self, shift: float):
         """
         Move stage Y about the distance specified in shift in millimeters. Positive shift
@@ -506,33 +501,22 @@ class StagesMonopack(StagesAbstract):
         Check if the stage is ready after move by checking the actual velocity.
         '''
         check = lambda stage: (self.axis_y.get_actual_acceleration_velocity() if stage == 'Y' else self.axis_x.get_actual_acceleration_velocity())
-        is_finished = None  # self.get_on_target_state(stage)
+        is_finished = None
         
         while True:
-            #  TODO interruption by user!!! User should be able to kill the motors.
-            #   Before user could kill the engine by pressing F1
-            # events = pygame.event.get()
-            # mods = pygame.key.get_mods()
-            # for event in events:
-            #     if event.type == KEYDOWN:
-            #         # interrupt
-            #         if event.key == K_F1:
-            #             is_finished = '1'
-            #             self.stop_motors()
-
             if is_finished == '1':
                 break
             else:
                 try:
                     attempt = 0
-                    while attempt < 2 :
+                    while attempt < self.attempts_for_ready :
                         check_it = check(stage)     # Three times check the stage for movement. If actual velocity is 0 and reference search is not active , then the stage is ready.
-                        if not check_it[0] and not check_it[2]:
+                        if not check_it[0] and not check_it[2] and not check_it[3]:
                             attempt += 1
                         else:
                             attempt = 0
-                            logger.debug('Resetting attempt to 0')
-                        time.sleep(0.3)
+                            # logger.debug('Resetting attempt to 0')
+                        time.sleep(self.time_for_ready_loop)
                     is_finished = '1'
                     logger.debug('Stage ' + stage + ' is ready.')
                     return is_finished

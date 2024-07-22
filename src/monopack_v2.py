@@ -74,6 +74,7 @@ class MonoPack():
         self.FCLK                   = fclk
         self.PREDIVIDER             = predivider
         self.desired_step_position  = 0
+        self.actual_step_position   = 0
         
 
     def speed_mms1_to_steps(self, speed):
@@ -315,9 +316,9 @@ class MonoPack():
         if position not in range(-8388608, 16777216):
             raise InvalidValue("Position value must be in range -8388608..16777215.")
         self.desired_step_position = position
-        logger.debug("Count for position {0} is: {1}\n".format(position*self.STEP, position))
+        # logger.debug("Count for position {0} is: {1}\n".format(position*self.STEP, position))
         b_position = struct.pack('<l', position)
-        logger.debug('Send position {} to Monopack.'.format(b_position))
+        # logger.debug('Send position {} to Monopack.'.format(b_position))
         P1, P2, P3, P4 = b_position
         command = [0x23, P0, P1, P2, P3, P4, 0x0, 0x0]
         return self.can_object.write_message(self.id, command)
@@ -544,13 +545,13 @@ class MonoPack():
         command = [0x71, 0x0, 0x0, 0x0, 0x0 , 0x0, 0x0, 0x0]
         try:
             response_data = bytearray(self.can_object.write_read(self.id, command)[1].DATA)
-            encoder_counter = struct.unpack('<L', response_data[2:6])[0]
-            actual_position = encoder_counter * self.STEP
-            logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
+            self.actual_step_position = struct.unpack('<L', response_data[2:6])[0]
+            # actual_position = self.actual_step_position * self.STEP
+            # logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
         except Exception as err:
             logger.debug("Get the encoder counter value function was done with error: {}!".format(err))
             raise
-        return encoder_counter
+        return self.actual_step_position
             
     def set_deviation_alarm(self, P0=0x01, P1=None, P2=None, correction_start_after=None):
         '''
