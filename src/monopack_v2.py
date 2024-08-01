@@ -38,20 +38,10 @@ Some commands are followed with their answer ($43, $74, $21... etc)
 
 # Import built-in modules.
 import struct
-import os
-import sys
-
-# find paths to the modules
-file_path   = os.path.dirname(__file__)
-depend_path = os.path.join('..', 'Peak_PCAN', 'src')
-
-# add path to the modules
-abspath = os.path.abspath(os.path.join(file_path, depend_path))
-sys.path.append(abspath)
 
 # import own modules
 from loguru import logger
-from tool_can import *
+from external.Peak_PCAN.src.tool_can import *
 
 
 # Exception class.
