@@ -217,7 +217,7 @@ class StagesMonopack(StagesAbstract):
         stage = 'X' or 'Y'
         """
 
-        if self.is_connected:
+        if self.is_connected and self.is_referenced:
             try:
                 if recursion and verbose:
                     logger.info(f'Recursive call {recursion} started: __get_real_position')
@@ -449,6 +449,7 @@ class StagesMonopack(StagesAbstract):
             self.axis_x.reference_search()
         if 'Y' in stage:
             self.axis_y.reference_search()
+        time.sleep(1.5)
 
         if 'X' in stage:
             self.is_ready('X')
@@ -467,7 +468,8 @@ class StagesMonopack(StagesAbstract):
             self.axis_x.drive_a_ramp(P0=0x01, position=2500)
         if 'Y' in stage:
             self.axis_y.drive_a_ramp(P0=0x01, position=2500)
-    
+        time.sleep(0.5)
+        
         if 'X' in stage:
             self.is_ready('X')
         if 'Y' in stage:
