@@ -18,17 +18,8 @@
 # 
 
 # Import built-in modules.
-import os
-import sys
 import time
 
-# find paths to the modules
-file_path   = os.path.dirname(__file__)
-depend_path = os.path.join('..', 'abstract_classes')
-
-# add path to the modules
-abspath = os.path.abspath(os.path.join(file_path, depend_path))
-sys.path.append(abspath)
 
 # import own modules
 from loguru import logger
