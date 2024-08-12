@@ -41,8 +41,8 @@ class StagesMonopack(StagesAbstract):
     y_min_limit = y_min
     y_max_limit = y_max
 
-    time_for_ready_loop = 0.1 # time for waiting loop between two asking attempts in seconds
-    attempts_for_ready = 2    # number of attempts for checking if the stage is ready
+    TIME_FOR_READY_LOOP = 0.05 # time for waiting loop between two asking attempts in seconds
+    ATTEMPTS_FOR_READY = 2    # number of attempts for checking if the stage is ready
     
 
 
@@ -107,7 +107,6 @@ class StagesMonopack(StagesAbstract):
 
         if self.is_connected:
             self.set_default_parameters()
-            time.sleep(0.5)
 
             if self.is_referenced:
                 self.update_current_pos()
@@ -178,7 +177,7 @@ class StagesMonopack(StagesAbstract):
 
     # Motor status functions ----------------------------------------------------------------
 
-    # UNDONE: Unimplemented get_error function
+    # FIXME Not right implementation get_error()
     def get_error(self, stage: str):
         """
         Get error number for specified stage and reset error status.
@@ -187,7 +186,6 @@ class StagesMonopack(StagesAbstract):
             answer = self.axis_x.reset_alarm()
         if stage=='Y':
             answer = self.axis_y.reset_alarm()
-        answer = self.write_serial(self.stages[stage] + ' ERR?')
         return answer
 
     def reboot_controller(self, stage: str):
@@ -222,7 +220,7 @@ class StagesMonopack(StagesAbstract):
         else:
             return 0
 
-    # TODO Not implemented get_on_target_state function
+    # TODO Not implemented get_on_target_state()
     def get_on_target_state(self,
                             stage: str,
                             recursive: bool = False):
@@ -266,9 +264,9 @@ class StagesMonopack(StagesAbstract):
             if self.check_position_limit(x=x):
                 return x
             else:
-                if x <= self.x_min:
-                    logger.info(f'limit_positions x {x}  replaced by {self.x_min}')
-                    return self.x_min
+                if x <= self.X_MIN:
+                    logger.info(f'limit_positions x {x}  replaced by {self.X_MIN}')
+                    return self.X_MIN
                 elif x >= self.x_max:
                     logger.info(f'limit_positions x {x} replaced by {self.x_max}')
                     return self.x_max
@@ -288,7 +286,7 @@ class StagesMonopack(StagesAbstract):
     def limit_positions_static(x: float = None,
                                y: float = None):
 
-        x_min = StagesMonopack.x_min
+        x_min = StagesMonopack.X_MIN
         x_max = StagesMonopack.x_max
         y_min = StagesMonopack.y_min
         y_max = StagesMonopack.y_max
@@ -440,7 +438,6 @@ class StagesMonopack(StagesAbstract):
             self.axis_x.reference_search()
         if 'Y' in stage:
             self.axis_y.reference_search()
-        time.sleep(1.5)
 
         if 'X' in stage:
             self.is_ready('X')
@@ -449,17 +446,13 @@ class StagesMonopack(StagesAbstract):
 
         self.axis_x.pid_6F(P0=0, P1=0)
         self.axis_y.pid_6F(P0=0, P1=0)
-        time.sleep(0.5)
         self.axis_x.reset_position()
         self.axis_y.reset_position()
-        time.sleep(1.5)
-        logger.debug('Time sleep 1.5 s')
         
         if 'X' in stage:
             self.axis_x.drive_a_ramp(P0=0x01, position=2500)
         if 'Y' in stage:
             self.axis_y.drive_a_ramp(P0=0x01, position=2500)
-        time.sleep(0.5)
         
         if 'X' in stage:
             self.is_ready('X')
@@ -476,7 +469,6 @@ class StagesMonopack(StagesAbstract):
         '''
         Check if the motors are referenced. If not, run the reference procedure.
         '''
-
         if self.is_referenced:
             return True
 
@@ -486,7 +478,7 @@ class StagesMonopack(StagesAbstract):
                 self.reference_stages()
                 if self.is_referenced:
                     return True
-
+                
         raise Exception('Unable to reference motors')
 
     def is_ready(self, stage):
@@ -502,21 +494,19 @@ class StagesMonopack(StagesAbstract):
             else:
                 try:
                     attempt = 0
-                    while attempt < self.attempts_for_ready :
+                    while attempt < self.ATTEMPTS_FOR_READY :
                         check_it = check(stage)     # Three times check the stage for movement. If actual velocity is 0 and reference search is not active , then the stage is ready.
                         if not check_it[0] and not check_it[2] and not check_it[3]:
                             attempt += 1
                         else:
                             attempt = 0
-                            # logger.debug('Resetting attempt to 0')
-                        time.sleep(self.time_for_ready_loop)
+                        time.sleep(self.TIME_FOR_READY_LOOP)
                     is_finished = '1'
                     logger.debug('Stage ' + stage + ' is ready.')
                     return is_finished
                 except Exception as err:
-                    raise
                     logger.debug('Error by checking if is ready: {}'.format(err))
-                    return '0'
+                    raise
 
     def get_x(self) -> float:
         # raise Exception('Do not use this!')
