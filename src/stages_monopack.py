@@ -264,9 +264,9 @@ class StagesMonopack(StagesAbstract):
             if self.check_position_limit(x=x):
                 return x
             else:
-                if x <= self.X_MIN:
-                    logger.info(f'limit_positions x {x}  replaced by {self.X_MIN}')
-                    return self.X_MIN
+                if x <= self.x_min:
+                    logger.info(f'limit_positions x {x}  replaced by {self.x_min}')
+                    return self.x_min
                 elif x >= self.x_max:
                     logger.info(f'limit_positions x {x} replaced by {self.x_max}')
                     return self.x_max
@@ -279,14 +279,14 @@ class StagesMonopack(StagesAbstract):
                     logger.info('limit_positions y ', y, ' replaced by ', {self.y_min})
                     return self.y_min
                 elif y >= self.y_max:
-                    logger.info('limit_positions y ', y, ' replaced by ', self.y_max)
+                    logger.info('limit_positions y ', y, ' replaced by ', {self.y_max})
                     return self.y_max
 
     @staticmethod
     def limit_positions_static(x: float = None,
                                y: float = None):
 
-        x_min = StagesMonopack.X_MIN
+        x_min = StagesMonopack.x_min
         x_max = StagesMonopack.x_max
         y_min = StagesMonopack.y_min
         y_max = StagesMonopack.y_max
