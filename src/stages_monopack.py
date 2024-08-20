@@ -292,23 +292,23 @@ class StagesMonopack(StagesAbstract):
         y_max = StagesMonopack.y_max
 
         if x is not None:
-            # if x <= x_min:
-            #     logger.info(f'limit_positions x {x}  replaced by {x_min}')
-            #     return x_min
-            # elif x >= x_max:
-            #     logger.info('limit_positions x ', x, ' replaced by ', x_max)
-            #     return x_max
-            # else:
+            if x <= x_min:
+                logger.info(f'limit_positions x {x}  replaced by {x_min}')
+                return x_min
+            elif x >= x_max:
+                logger.info('limit_positions x ', x, ' replaced by ', x_max)
+                return x_max
+            else:
                 return x
 
         if y is not None:
-            # if y <= y_min:
-            #     logger.info('limit_positions y ', y, ' replaced by ', {y_min})
-            #     return y_min
-            # elif y >= y_max:
-            #     logger.info('limit_positions y ', y, ' replaced by ', y_max)
-            #     return y_max
-            # else:
+            if y <= y_min:
+                logger.info('limit_positions y ', y, ' replaced by ', {y_min})
+                return y_min
+            elif y >= y_max:
+                logger.info('limit_positions y ', y, ' replaced by ', y_max)
+                return y_max
+            else:
                 return y
 
 
