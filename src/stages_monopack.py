@@ -345,7 +345,7 @@ class StagesMonopack(StagesAbstract):
         """
         if self.is_referenced and self.is_connected and self.is_enabled:
             y_new = self.limit_positions(y=self.y_mm + shift)
-            response = self.axis_x.drive_a_ramp(position=round(y_new/self.axis_y.STEP))
+            response = self.axis_y.drive_a_ramp(position=round(y_new/self.axis_y.STEP))
             self.set_new_pos(y=y_new)
 
     def go_home(self, stage: str = 'XY'):
