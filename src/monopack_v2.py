@@ -66,6 +66,10 @@ class MonoPack():
         self.desired_step_position  = 0
         self.actual_step_position   = 0
         
+    #***********************************************************************************#
+    @property
+    def actual_step_position(self):
+        return self.get_encoder_counter()
 
     def speed_mms1_to_steps(self, speed):
         '''
@@ -535,13 +539,13 @@ class MonoPack():
         command = [0x71, 0x0, 0x0, 0x0, 0x0 , 0x0, 0x0, 0x0]
         try:
             response_data = bytearray(self.can_object.write_read(self.id, command)[1].DATA)
-            self.actual_step_position = struct.unpack('<L', response_data[2:6])[0]
-            # actual_position = self.actual_step_position * self.STEP
-            # logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
+            actual_counter = struct.unpack('<L', response_data[2:6])[0]
+            actual_position = actual_counter * self.STEP
+            logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
         except Exception as err:
             logger.debug("Get the encoder counter value function was done with error: {}!".format(err))
             raise
-        return self.actual_step_position
+        return actual_counter
             
     def set_deviation_alarm(self, P0=0x01, P1=None, P2=None, correction_start_after=None):
         '''
