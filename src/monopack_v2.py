@@ -64,12 +64,17 @@ class MonoPack():
         self.FCLK                   = fclk
         self.PREDIVIDER             = predivider
         self.desired_step_position  = 0
-        self.actual_step_position   = 0
         
     #***********************************************************************************#
     @property
     def actual_step_position(self):
-        return self.get_encoder_counter()
+        '''
+        Get the actual counter position in steps.
+        '''
+        actual_counter = self.get_encoder_counter()
+        actual_position = actual_counter * self.STEP
+        logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
+        return actual_counter
 
     def speed_mms1_to_steps(self, speed):
         '''
@@ -540,8 +545,8 @@ class MonoPack():
         try:
             response_data = bytearray(self.can_object.write_read(self.id, command)[1].DATA)
             actual_counter = struct.unpack('<L', response_data[2:6])[0]
-            actual_position = actual_counter * self.STEP
-            logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
+            # actual_position = actual_counter * self.STEP
+            # logger.info("Position with ID {} in mm: {}.".format(self.id, actual_position))
         except Exception as err:
             logger.debug("Get the encoder counter value function was done with error: {}!".format(err))
             raise
